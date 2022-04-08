@@ -105,7 +105,7 @@ namespace ClassFilter
 		void AddChildren_NoFilter(FSEClassFilterNodePtr& InOutRootNode, const TMultiMap<FName, FAssetData>& BlueprintPackageToAssetDataMap);
 
 		/** Called when hot reload has finished */
-		void OnHotReload(bool bWasTriggeredAutomatically);
+		void OnHotReload(EReloadCompleteReason ReloadCompleteReason);
 
 		/** Finds the node, recursively going deeper into the hierarchy. Does so by comparing generated class package names.
 		 *	@param InGeneratedClassPath		The path of the generated class to find the node for.

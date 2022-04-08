@@ -32,7 +32,7 @@ public:
 	~SSaveActorEditorWidget();
 
 
-	void OnObjectPreSave(UObject* InObject);
+	void OnObjectPreSave(UObject* InObject, FObjectPreSaveContext ObjectPreSaveContext);
 
 	void OnBlueprintPreCompile(UBlueprint* InBlueprint);
 

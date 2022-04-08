@@ -2,6 +2,8 @@
 
 #include "SaveActorEditorTabSummoner.h"
 
+#include "UObject/ObjectSaveContext.h"
+
 #include <SSCSEditor.h>
 #include <Styling/SlateIconFinder.h>
 #include <Kismet2/BlueprintEditorUtils.h>
@@ -29,7 +31,7 @@ void SSaveActorEditorWidget::Construct(const FArguments&, TWeakPtr<FBlueprintEdi
 	bRefreshingVisuals = false;
 
 	OnBlueprintPreCompileHandle = GEditor->OnBlueprintPreCompile().AddSP(this, &SSaveActorEditorWidget::OnBlueprintPreCompile);
-	OnObjectSavedHandle = FCoreUObjectDelegates::OnObjectSaved.AddSP(this, &SSaveActorEditorWidget::OnObjectPreSave);
+	OnObjectSavedHandle = FCoreUObjectDelegates::OnObjectPreSave.AddSP(this, &SSaveActorEditorWidget::OnObjectPreSave);
 
 	WeakBlueprintEditor = InBlueprintEditor;
 	ChildSlot
@@ -50,10 +52,10 @@ void SSaveActorEditorWidget::Construct(const FArguments&, TWeakPtr<FBlueprintEdi
 SSaveActorEditorWidget::~SSaveActorEditorWidget()
 {
 	GEditor->OnBlueprintPreCompile().Remove(OnBlueprintPreCompileHandle);
-	FCoreUObjectDelegates::OnObjectSaved.Remove(OnObjectSavedHandle);
+	FCoreUObjectDelegates::OnObjectPreSave.Remove(OnObjectSavedHandle);
 }
 
-void SSaveActorEditorWidget::OnObjectPreSave(UObject* InObject)
+void SSaveActorEditorWidget::OnObjectPreSave(UObject* InObject, FObjectPreSaveContext ObjectPreSaveContext)
 {
 	if (InObject && InObject == GetBlueprint())
 	{

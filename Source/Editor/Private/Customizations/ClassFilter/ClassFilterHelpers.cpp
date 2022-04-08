@@ -25,8 +25,7 @@ namespace ClassFilter
 		AssetRegistryModule.Get().OnAssetRemoved().AddRaw(this, &FClassHierarchy::RemoveAsset);
 
 		// Register to have Populate called when doing a Hot Reload.
-		IHotReloadInterface& HotReloadSupport = FModuleManager::LoadModuleChecked<IHotReloadInterface>("HotReload");
-		HotReloadSupport.OnHotReload().AddRaw(this, &FClassHierarchy::OnHotReload);
+		FCoreUObjectDelegates::ReloadCompleteDelegate.AddRaw(this, &FClassHierarchy::OnHotReload);
 
 		// Register to have Populate called when a Blueprint is compiled.
 		OnBlueprintCompiledRequestPopulateClassHierarchyDelegateHandle = GEditor->OnBlueprintCompiled().AddStatic(ClassFilter::Helpers::RequestPopulateClassHierarchy);
@@ -46,11 +45,7 @@ namespace ClassFilter
 			AssetRegistryModule.Get().OnAssetRemoved().RemoveAll(this);
 
 			// Unregister to have Populate called when doing a Hot Reload.
-			if (FModuleManager::Get().IsModuleLoaded("HotReload"))
-			{
-				IHotReloadInterface& HotReloadSupport = FModuleManager::GetModuleChecked<IHotReloadInterface>("HotReload");
-				HotReloadSupport.OnHotReload().RemoveAll(this);
-			}
+			FCoreUObjectDelegates::ReloadCompleteDelegate.RemoveAll(this);
 
 			if (GEditor)
 			{
@@ -78,8 +73,17 @@ namespace ClassFilter
 		return NewNode;
 	}
 
-	void FClassHierarchy::OnHotReload(bool bWasTriggeredAutomatically)
+	void FClassHierarchy::OnHotReload(EReloadCompleteReason ReloadCompleteReason)
 	{
+		switch (ReloadCompleteReason) {
+			case EReloadCompleteReason::None:
+				break;
+			case EReloadCompleteReason::HotReloadAutomatic:
+				break;
+			case EReloadCompleteReason::HotReloadManual:
+				break;
+			default: ;
+		}
 		ClassFilter::Helpers::RequestPopulateClassHierarchy();
 	}
 
