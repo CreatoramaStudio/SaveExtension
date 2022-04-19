@@ -14,6 +14,7 @@
 #include "Serialization/SlotDataTask.h"
 #include "SlotData.h"
 #include "SlotInfo.h"
+#include "LatentActions/LoadInfosAction.h"
 
 #include <Async/AsyncWork.h>
 #include <CoreMinimal.h>
@@ -29,6 +30,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameSavedMC, USlotInfo*, SlotInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameLoadedMC, USlotInfo*, SlotInfo);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreSave, FName, SlotName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreLoad, FName, SlotName);
 
 struct FLatentActionInfo;
 
@@ -228,8 +231,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "SaveExtension",
 		meta = (Latent, LatentInfo = "LatentInfo", ExpandEnumAsExecs = "Result",
 			DisplayName = "Load All Slot Infos"))
-	void BPLoadAllSlotInfos(const bool bSortByRecent, TArray<USlotInfo*>& SaveInfos, ELoadInfoResult& Result,
-		struct FLatentActionInfo LatentInfo);
+	void BPLoadAllSlotInfos(const bool bSortByRecent, TArray<USlotInfo*>& SaveInfos, ELoadInfoResult& Result,struct FLatentActionInfo LatentInfo);
 
 	/** Delete a saved game on an specified slot Id
 	 * Performance: Interacts with disk, can be slow
@@ -410,12 +412,18 @@ protected:
 	/* EVENTS                                                              */
 	/***********************************************************************/
 public:
+	
+	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
+	FOnGamePreSave OnGamePreSave;
+	
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
 	FOnGameSavedMC OnGameSaved;
 
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGameLoadedMC OnGameLoaded;
+	FOnGamePreLoad OnGamePreLoad;
 
+	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
+	FOnGameLoadedMC OnGameLoaded;
 
 	/** Subscribe to receive save and load events on an Interface */
 	UFUNCTION(Category = SaveExtension, BlueprintCallable)
@@ -443,25 +451,6 @@ private:
 public:
 	/** Get the global save manager */
 	static USaveManager* Get(const UObject* ContextObject);
-
-
-	/***********************************************************************/
-	/* DEPRECATED                                                          */
-	/***********************************************************************/
-
-	UFUNCTION(Category = "SaveExtension|Saving", BlueprintCallable, meta = (DeprecatedFunction, DeprecationMessage="Use 'Save Slot by Id' instead.", 
-		AdvancedDisplay = "bScreenshot, Size", DisplayName = "Save Slot to Id", Latent, LatentInfo = "LatentInfo", ExpandEnumAsExecs = "Result", UnsafeDuringActorConstruction))
-	void BPSaveSlotToId(int32 SlotId, bool bScreenshot, const FScreenshotSize Size, ESaveGameResult& Result, FLatentActionInfo LatentInfo, bool bOverrideIfNeeded = true)
-	{
-		BPSaveSlotById(SlotId, bScreenshot, Size, Result, LatentInfo, bOverrideIfNeeded);
-	}
-
-	UFUNCTION(BlueprintCallable, Category = "SaveExtension|Loading", meta = (DeprecatedFunction, DeprecationMessage="Use 'Load Slot by Id' instead.",
-		DisplayName = "Load Slot from Id", Latent, LatentInfo = "LatentInfo", ExpandEnumAsExecs = "Result", UnsafeDuringActorConstruction))
-	void BPLoadSlotFromId(int32 SlotId, ELoadGameResult& Result, FLatentActionInfo LatentInfo)
-	{
-		BPLoadSlotById(SlotId, Result, LatentInfo);
-	}
 };
 
 

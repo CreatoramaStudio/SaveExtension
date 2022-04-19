@@ -60,8 +60,7 @@ void USaveManager::Deinitialize()
 	FGameDelegates::Get().GetEndPlayMapDelegate().RemoveAll(this);
 }
 
-bool USaveManager::SaveSlot(
-	FName SlotName, bool bOverrideIfNeeded, bool bScreenshot, const FScreenshotSize Size, FOnGameSaved OnSaved)
+bool USaveManager::SaveSlot(FName SlotName, bool bOverrideIfNeeded, bool bScreenshot, const FScreenshotSize Size, FOnGameSaved OnSaved)
 {
 	if (!CanLoadOrSave())
 		return false;
@@ -78,6 +77,11 @@ bool USaveManager::SaveSlot(
 
 	UWorld* World = GetWorld();
 	check(World);
+
+	if (OnGamePreSave.IsBound())
+	{
+		OnGamePreSave.Broadcast(SlotName);
+	}
 
 	// Launch task, always fail if it didn't finish or wasn't scheduled
 	auto* Task = CreateTask<USlotDataTask_Saver>()
@@ -96,6 +100,11 @@ bool USaveManager::LoadSlot(FName SlotName, FOnGameLoaded OnLoaded)
 	}
 
 	TryInstantiateInfo();
+
+	if (OnGamePreLoad.IsBound())
+	{
+		OnGamePreLoad.Broadcast(SlotName);
+	}
 
 	auto* Task = CreateTask<USlotDataTask_Loader>()
 		->Setup(SlotName)
@@ -157,48 +166,50 @@ void USaveManager::BPSaveSlot(FName SlotName, bool bScreenshot, const FScreensho
 	{
 		Result = ESaveGameResult::Saving;
 
-		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
-		if (LatentActionManager.FindExistingAction<FSaveGameAction>(
-				LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
+		if (OnGamePreSave.IsBound())
 		{
-			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID,
-				new FSaveGameAction(this, SlotName, bOverrideIfNeeded, bScreenshot, Size, Result, LatentInfo));
+			OnGamePreSave.Broadcast(SlotName);
+		}
+
+		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
+		if (LatentActionManager.FindExistingAction<FSaveGameAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
+		{
+			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID,new FSaveGameAction(this, SlotName, bOverrideIfNeeded, bScreenshot, Size, Result, LatentInfo));
 		}
 		return;
 	}
 	Result = ESaveGameResult::Failed;
 }
 
-void USaveManager::BPLoadSlot(
-	FName SlotName, ELoadGameResult& Result, struct FLatentActionInfo LatentInfo)
+void USaveManager::BPLoadSlot(FName SlotName, ELoadGameResult& Result, struct FLatentActionInfo LatentInfo)
 {
 	if (UWorld* World = GetWorld())
 	{
 		Result = ELoadGameResult::Loading;
 
-		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
-		if (LatentActionManager.FindExistingAction<FLoadGameAction>(
-				LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
+		if (OnGamePreLoad.IsBound())
 		{
-			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID,
-				new FLoadGameAction(this, SlotName, Result, LatentInfo));
+			OnGamePreLoad.Broadcast(SlotName);
+		}
+
+		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
+		if (LatentActionManager.FindExistingAction<FLoadGameAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
+		{
+			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID,new FLoadGameAction(this, SlotName, Result, LatentInfo));
 		}
 		return;
 	}
 	Result = ELoadGameResult::Failed;
 }
 
-void USaveManager::BPLoadAllSlotInfos(const bool bSortByRecent, TArray<USlotInfo*>& SaveInfos,
-	ELoadInfoResult& Result, struct FLatentActionInfo LatentInfo)
+void USaveManager::BPLoadAllSlotInfos(const bool bSortByRecent, TArray<USlotInfo*>& SaveInfos,ELoadInfoResult& Result, struct FLatentActionInfo LatentInfo)
 {
 	if (UWorld* World = GetWorld())
 	{
 		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
-		if (LatentActionManager.FindExistingAction<FLoadInfosAction>(
-				LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
+		if (LatentActionManager.FindExistingAction<FLoadInfosAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
 		{
-			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID,
-				new FLoadInfosAction(this, bSortByRecent, SaveInfos, Result, LatentInfo));
+			LatentActionManager.AddNewAction(LatentInfo.CallbackTarget, LatentInfo.UUID,new FLoadInfosAction(this, bSortByRecent, SaveInfos, Result, LatentInfo));
 		}
 	}
 }
