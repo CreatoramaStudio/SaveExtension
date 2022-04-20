@@ -443,9 +443,9 @@ void USaveManager::OnSaveFinished(const FSELevelFilter& Filter, const bool bErro
 		ISaveExtensionInterface::Execute_ReceiveOnSaveFinished(Object, Filter, bError);
 	});
 
-	if (!bError)
+	if (!bError && OnGamePostSave.IsBound())
 	{
-		OnGameSaved.Broadcast(CurrentInfo);
+		OnGamePostSave.Broadcast(CurrentInfo);
 	}
 }
 
@@ -482,9 +482,9 @@ void USaveManager::OnLoadFinished(const FSELevelFilter& Filter, const bool bErro
 		ISaveExtensionInterface::Execute_ReceiveOnLoadFinished(Object, Filter, bError);
 	});
 
-	if (!bError)
+	if (!bError && OnGamePostLoad.IsBound())
 	{
-		OnGameLoaded.Broadcast(CurrentInfo);
+		OnGamePostLoad.Broadcast(CurrentInfo);
 	}
 }
 

@@ -26,12 +26,11 @@
 
 #include "SaveManager.generated.h"
 
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameSavedMC, USlotInfo*, SlotInfo);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGameLoadedMC, USlotInfo*, SlotInfo);
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreSave, FName, SlotName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreLoad, FName, SlotName);
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostSave, USlotInfo*, SlotInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostLoad, USlotInfo*, SlotInfo);
 
 struct FLatentActionInfo;
 
@@ -415,15 +414,15 @@ public:
 	
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
 	FOnGamePreSave OnGamePreSave;
-	
-	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGameSavedMC OnGameSaved;
 
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
 	FOnGamePreLoad OnGamePreLoad;
+	
+	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
+	FOnGamePostSave OnGamePostSave;
 
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGameLoadedMC OnGameLoaded;
+	FOnGamePostLoad OnGamePostLoad;
 
 	/** Subscribe to receive save and load events on an Interface */
 	UFUNCTION(Category = SaveExtension, BlueprintCallable)
