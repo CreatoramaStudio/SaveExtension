@@ -166,11 +166,6 @@ void USaveManager::BPSaveSlot(FName SlotName, bool bScreenshot, const FScreensho
 	{
 		Result = ESaveGameResult::Saving;
 
-		if (OnGamePreSave.IsBound())
-		{
-			OnGamePreSave.Broadcast(SlotName);
-		}
-
 		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
 		if (LatentActionManager.FindExistingAction<FSaveGameAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
 		{
@@ -186,11 +181,6 @@ void USaveManager::BPLoadSlot(FName SlotName, ELoadGameResult& Result, struct FL
 	if (UWorld* World = GetWorld())
 	{
 		Result = ELoadGameResult::Loading;
-
-		if (OnGamePreLoad.IsBound())
-		{
-			OnGamePreLoad.Broadcast(SlotName);
-		}
 
 		FLatentActionManager& LatentActionManager = World->GetLatentActionManager();
 		if (LatentActionManager.FindExistingAction<FLoadGameAction>(LatentInfo.CallbackTarget, LatentInfo.UUID) == nullptr)
@@ -443,9 +433,19 @@ void USaveManager::OnSaveFinished(const FSELevelFilter& Filter, const bool bErro
 		ISaveExtensionInterface::Execute_ReceiveOnSaveFinished(Object, Filter, bError);
 	});
 
-	if (!bError && OnGamePostSave.IsBound())
+	if (bError)
 	{
-		OnGamePostSave.Broadcast(CurrentInfo);
+		if (OnGamePostSaveFailed.IsBound())
+		{
+			OnGamePostSaveFailed.Broadcast(CurrentInfo);
+		}
+	}
+	else
+	{
+		if (OnGamePostSave.IsBound())
+		{
+			OnGamePostSave.Broadcast(CurrentInfo);
+		}
 	}
 }
 
@@ -482,9 +482,19 @@ void USaveManager::OnLoadFinished(const FSELevelFilter& Filter, const bool bErro
 		ISaveExtensionInterface::Execute_ReceiveOnLoadFinished(Object, Filter, bError);
 	});
 
-	if (!bError && OnGamePostLoad.IsBound())
+	if (bError)
 	{
-		OnGamePostLoad.Broadcast(CurrentInfo);
+		if (OnGamePostLoadFailed.IsBound())
+		{
+			OnGamePostLoadFailed.Broadcast(CurrentInfo);
+		}
+	}
+	else
+	{
+		if (OnGamePostLoad.IsBound())
+		{
+			OnGamePostLoad.Broadcast(CurrentInfo);
+		}
 	}
 }
 

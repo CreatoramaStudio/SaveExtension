@@ -32,6 +32,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreLoad, FName, SlotName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostSave, USlotInfo*, SlotInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostLoad, USlotInfo*, SlotInfo);
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostSaveFailed, USlotInfo*, SlotInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostLoadFailed, USlotInfo*, SlotInfo);
+
 struct FLatentActionInfo;
 
 USTRUCT(BlueprintType)
@@ -423,6 +426,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
 	FOnGamePostLoad OnGamePostLoad;
+
+	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
+	FOnGamePostSaveFailed OnGamePostSaveFailed;
+
+	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
+	FOnGamePostLoadFailed OnGamePostLoadFailed;
 
 	/** Subscribe to receive save and load events on an Interface */
 	UFUNCTION(Category = SaveExtension, BlueprintCallable)
