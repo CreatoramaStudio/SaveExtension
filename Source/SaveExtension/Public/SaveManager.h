@@ -16,11 +16,8 @@
 #include "SlotInfo.h"
 #include "LatentActions/LoadInfosAction.h"
 
-#include <Async/AsyncWork.h>
 #include <CoreMinimal.h>
 #include <Engine/GameInstance.h>
-#include <GenericPlatform/GenericPlatformFile.h>
-#include <HAL/PlatformFilemanager.h>
 #include <Subsystems/GameInstanceSubsystem.h>
 #include <Tickable.h>
 
@@ -29,11 +26,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreSave, FName, SlotName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreLoad, FName, SlotName);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostSave, USlotInfo*, SlotInfo);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostLoad, USlotInfo*, SlotInfo);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostSaveFailed, USlotInfo*, SlotInfo);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePostLoadFailed, USlotInfo*, SlotInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGamePostSave, bool, bSuccess, USlotInfo*, SlotInfo);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGamePostLoad, bool, bSuccess, USlotInfo*, SlotInfo);
 
 struct FLatentActionInfo;
 
@@ -426,12 +420,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
 	FOnGamePostLoad OnGamePostLoad;
-
-	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGamePostSaveFailed OnGamePostSaveFailed;
-
-	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGamePostLoadFailed OnGamePostLoadFailed;
 
 	/** Subscribe to receive save and load events on an Interface */
 	UFUNCTION(Category = SaveExtension, BlueprintCallable)

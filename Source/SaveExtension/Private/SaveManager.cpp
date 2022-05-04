@@ -12,15 +12,11 @@
 #include "Serialization/SlotDataTask_Loader.h"
 #include "Serialization/SlotDataTask_Saver.h"
 
-#include <Engine/GameViewportClient.h>
 #include <Engine/LevelStreaming.h>
 #include <EngineUtils.h>
 #include <GameDelegates.h>
 #include <GameFramework/GameModeBase.h>
-#include <HighResScreenshot.h>
 #include <Kismet/GameplayStatics.h>
-#include <Misc/CoreDelegates.h>
-#include <Misc/Paths.h>
 
 
 USaveManager::USaveManager() : Super(), MTTasks{} {}
@@ -433,19 +429,9 @@ void USaveManager::OnSaveFinished(const FSELevelFilter& Filter, const bool bErro
 		ISaveExtensionInterface::Execute_ReceiveOnSaveFinished(Object, Filter, bError);
 	});
 
-	if (bError)
+	if (OnGamePostSave.IsBound())
 	{
-		if (OnGamePostSaveFailed.IsBound())
-		{
-			OnGamePostSaveFailed.Broadcast(CurrentInfo);
-		}
-	}
-	else
-	{
-		if (OnGamePostSave.IsBound())
-		{
-			OnGamePostSave.Broadcast(CurrentInfo);
-		}
+		OnGamePostSave.Broadcast(!bError,CurrentInfo);
 	}
 }
 
@@ -482,19 +468,9 @@ void USaveManager::OnLoadFinished(const FSELevelFilter& Filter, const bool bErro
 		ISaveExtensionInterface::Execute_ReceiveOnLoadFinished(Object, Filter, bError);
 	});
 
-	if (bError)
+	if (OnGamePostLoad.IsBound())
 	{
-		if (OnGamePostLoadFailed.IsBound())
-		{
-			OnGamePostLoadFailed.Broadcast(CurrentInfo);
-		}
-	}
-	else
-	{
-		if (OnGamePostLoad.IsBound())
-		{
-			OnGamePostLoad.Broadcast(CurrentInfo);
-		}
+		OnGamePostLoad.Broadcast(!bError,CurrentInfo);
 	}
 }
 

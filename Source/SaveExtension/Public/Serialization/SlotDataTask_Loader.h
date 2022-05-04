@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Delegates.h"
-#include "ISaveExtension.h"
 #include "Multithreading/LoadFileTask.h"
 #include "SavePreset.h"
 #include "SlotInfo.h"
@@ -13,8 +12,6 @@
 #include <Engine/Level.h>
 #include <Engine/LevelStreaming.h>
 #include <GameFramework/Actor.h>
-#include <Engine/LevelScriptActor.h>
-#include <GameFramework/Controller.h>
 
 #include "SlotDataTask_Loader.generated.h"
 
