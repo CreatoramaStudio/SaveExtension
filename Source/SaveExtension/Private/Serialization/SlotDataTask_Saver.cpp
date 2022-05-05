@@ -141,11 +141,8 @@ void USlotDataTask_Saver::OnFinish(bool bSuccess)
 	// Execute delegates
 	USaveManager* Manager = GetManager();
 	check(Manager);
-	Delegate.ExecuteIfBound((Manager && bSuccess)? Manager->GetCurrentInfo() : nullptr);
-	Manager->OnSaveFinished(
-		SlotData? GetGeneralFilter() : FSELevelFilter{},
-		!bSuccess
-	);
+	Delegate.ExecuteIfBound( Manager && bSuccess, Manager && bSuccess ? Manager->GetCurrentInfo() : nullptr);
+	Manager->OnSaveFinished(SlotData? GetGeneralFilter() : FSELevelFilter{},!bSuccess);
 }
 
 void USlotDataTask_Saver::BeginDestroy()

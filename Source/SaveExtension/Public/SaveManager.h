@@ -23,11 +23,6 @@
 
 #include "SaveManager.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreSave, FName, SlotName);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGamePreLoad, FName, SlotName);
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGamePostSave, bool, bSuccess, USlotInfo*, SlotInfo);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnGamePostLoad, bool, bSuccess, USlotInfo*, SlotInfo);
 
 struct FLatentActionInfo;
 
@@ -117,31 +112,31 @@ public:
 
 	/** Save the Game into an specified slot name */
 	bool SaveSlot(FName SlotName, bool bOverrideIfNeeded = true, bool bScreenshot = false,
-		const FScreenshotSize Size = {}, FOnGameSaved OnSaved = {});
+		const FScreenshotSize Size = {}, FOnGamePostSave OnSaved = {});
 
 	/** Save the Game info an SlotInfo */
 	bool SaveSlot(const USlotInfo* SlotInfo, bool bOverrideIfNeeded = true, bool bScreenshot = false,
-		const FScreenshotSize Size = {}, FOnGameSaved OnSaved = {});
+		const FScreenshotSize Size = {}, FOnGamePostSave OnSaved = {});
 
 	/** Save the Game into an specified slot id */
 	bool SaveSlot(int32 SlotId, bool bOverrideIfNeeded = true, bool bScreenshot = false,
-		const FScreenshotSize Size = {}, FOnGameSaved OnSaved = {});
+		const FScreenshotSize Size = {}, FOnGamePostSave OnSaved = {});
 
 	/** Save the currently loaded Slot */
-	bool SaveCurrentSlot(bool bScreenshot = false, const FScreenshotSize Size = {}, FOnGameSaved OnSaved = {});
+	bool SaveCurrentSlot(bool bScreenshot = false, const FScreenshotSize Size = {}, FOnGamePostSave OnSaved = {});
 
 
 	/** Load game from a file name */
-	bool LoadSlot(FName SlotName, FOnGameLoaded OnLoaded = {});
+	bool LoadSlot(FName SlotName, FOnGamePostLoad OnLoaded = {});
 
 	/** Load game from a slot Id */
-	bool LoadSlot(int32 SlotId, FOnGameLoaded OnLoaded = {});
+	bool LoadSlot(int32 SlotId, FOnGamePostLoad OnLoaded = {});
 
 	/** Load game from a SlotInfo */
-	bool LoadSlot(const USlotInfo* SlotInfo, FOnGameLoaded OnLoaded = {});
+	bool LoadSlot(const USlotInfo* SlotInfo, FOnGamePostLoad OnLoaded = {});
 
 	/** Reload the currently loaded slot if any */
-	bool ReloadCurrentSlot(FOnGameLoaded OnLoaded = {})
+	bool ReloadCurrentSlot(FOnGamePostLoad OnLoaded = {})
 	{
 		return LoadSlot(CurrentInfo, MoveTemp(OnLoaded));
 	}
@@ -410,16 +405,16 @@ protected:
 public:
 	
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGamePreSave OnGamePreSave;
+	FOnGamePreSaveMulticast OnGamePreSave;
 
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGamePreLoad OnGamePreLoad;
+	FOnGamePreLoadMulticast OnGamePreLoad;
 	
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGamePostSave OnGamePostSave;
+	FOnGamePostSaveMulticast OnGamePostSave;
 
 	UPROPERTY(BlueprintAssignable, Category = SaveExtension)
-	FOnGamePostLoad OnGamePostLoad;
+	FOnGamePostLoadMulticast OnGamePostLoad;
 
 	/** Subscribe to receive save and load events on an Interface */
 	UFUNCTION(Category = SaveExtension, BlueprintCallable)
@@ -451,7 +446,7 @@ public:
 
 
 inline bool USaveManager::SaveSlot(int32 SlotId, bool bOverrideIfNeeded, bool bScreenshot,
-	const FScreenshotSize Size, FOnGameSaved OnSaved)
+	const FScreenshotSize Size, FOnGamePostSave OnSaved)
 {
 	if (!IsValidSlot(SlotId))
 	{
@@ -462,7 +457,7 @@ inline bool USaveManager::SaveSlot(int32 SlotId, bool bOverrideIfNeeded, bool bS
 }
 
 inline bool USaveManager::SaveSlot(const USlotInfo* SlotInfo, bool bOverrideIfNeeded, bool bScreenshot,
-	const FScreenshotSize Size, FOnGameSaved OnSaved)
+	const FScreenshotSize Size, FOnGamePostSave OnSaved)
 {
 	if (!SlotInfo)
 	{
@@ -494,12 +489,12 @@ inline void USaveManager::BPSaveSlotByInfo(const USlotInfo* SlotInfo, bool bScre
 }
 
 /** Save the currently loaded Slot */
-inline bool USaveManager::SaveCurrentSlot(bool bScreenshot, const FScreenshotSize Size, FOnGameSaved OnSaved)
+inline bool USaveManager::SaveCurrentSlot(bool bScreenshot, const FScreenshotSize Size, FOnGamePostSave OnSaved)
 {
 	return SaveSlot(CurrentInfo, true, bScreenshot, Size, OnSaved);
 }
 
-inline bool USaveManager::LoadSlot(int32 SlotId, FOnGameLoaded OnLoaded)
+inline bool USaveManager::LoadSlot(int32 SlotId, FOnGamePostLoad OnLoaded)
 {
 	if (!IsValidSlot(SlotId))
 	{
@@ -509,7 +504,7 @@ inline bool USaveManager::LoadSlot(int32 SlotId, FOnGameLoaded OnLoaded)
 	return LoadSlot(GetSlotNameFromId(SlotId), OnLoaded);
 }
 
-inline bool USaveManager::LoadSlot(const USlotInfo* SlotInfo, FOnGameLoaded OnLoaded)
+inline bool USaveManager::LoadSlot(const USlotInfo* SlotInfo, FOnGamePostLoad OnLoaded)
 {
 	if (!SlotInfo)
 	{

@@ -51,11 +51,14 @@ void FSaveSpec_Files::Define()
 		TestPreset->MultithreadedFiles = ESaveASyncMode::SaveAsync;
 		bFinishTick = false;
 
-		bool bSaving = SaveManager->SaveSlot(0, true, false, {}, FOnGameSaved::CreateLambda([this](auto* Info) {
-			// Notified that files have been saved asynchronously
-			TestTrue("Info File exists in disk", FFileAdapter::DoesFileExist(TEXT("0")));
-			bFinishTick = true;
-		}));
+		bool bSaving = SaveManager->SaveSlot(0, true, false, {}, FOnGamePostSave::CreateLambda
+		([this](bool bSuccess,USlotInfo* Info)
+			{
+				// Notified that files have been saved asynchronously
+				TestTrue("Info File exists in disk", FFileAdapter::DoesFileExist(TEXT("0")));
+				bFinishTick = true;
+			}
+		));
 		TestTrue("Started Saving", bSaving);
 
 		// Files shouldn't exist yet

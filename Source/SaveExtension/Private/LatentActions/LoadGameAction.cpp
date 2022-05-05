@@ -12,7 +12,7 @@ FLoadGameAction::FLoadGameAction(USaveManager* Manager, FName SlotName, ELoadGam
 	, OutputLink(LatentInfo.Linkage)
 	, CallbackTarget(LatentInfo.CallbackTarget)
 {
-	const bool bStarted = Manager->LoadSlot(SlotName, FOnGameLoaded::CreateRaw(this, &FLoadGameAction::OnLoadFinished));
+	const bool bStarted = Manager->LoadSlot(SlotName, FOnGamePostLoad::CreateRaw(this, &FLoadGameAction::OnLoadFinished));
 	if (!bStarted)
 	{
 		Result = ELoadGameResult::Failed;
@@ -24,7 +24,7 @@ void FLoadGameAction::UpdateOperation(FLatentResponse& Response)
 	Response.FinishAndTriggerIf(Result != ELoadGameResult::Loading, ExecutionFunction, OutputLink, CallbackTarget);
 }
 
-void FLoadGameAction::OnLoadFinished(USlotInfo* SavedSlot)
+void FLoadGameAction::OnLoadFinished(bool bSuccess, USlotInfo* SavedSlot)
 {
 	Result = SavedSlot ? ELoadGameResult::Continue : ELoadGameResult::Failed;
 }

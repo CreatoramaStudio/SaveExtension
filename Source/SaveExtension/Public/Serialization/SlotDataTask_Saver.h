@@ -35,7 +35,7 @@ class USlotDataTask_Saver : public USlotDataTask
 	int32 Width;
 	int32 Height;
 
-	FOnGameSaved Delegate;
+	FOnGamePostSave Delegate;
 
 protected:
 
@@ -73,7 +73,7 @@ public:
 		return this;
 	}
 
-	auto* Bind(const FOnGameSaved& OnSaved) { Delegate = OnSaved; return this; }
+	auto* Bind(const FOnGamePostSave& OnSaved) { Delegate = OnSaved; return this; }
 
 	// Where all magic happens
 	virtual void OnStart() override;

@@ -11,7 +11,7 @@ FSaveGameAction::FSaveGameAction(USaveManager* Manager, FName SlotName, bool bOv
 	, OutputLink(LatentInfo.Linkage)
 	, CallbackTarget(LatentInfo.CallbackTarget)
 {
-	const bool bStarted = Manager->SaveSlot(SlotName, bOverrideIfNeeded, bScreenshot, Size, FOnGameSaved::CreateRaw(this, &FSaveGameAction::OnSaveFinished));
+	const bool bStarted = Manager->SaveSlot(SlotName, bOverrideIfNeeded, bScreenshot, Size,FOnGamePostSave::CreateRaw(this, &FSaveGameAction::OnSaveFinished));
 
 	if (!bStarted)
 	{
@@ -24,7 +24,7 @@ void FSaveGameAction::UpdateOperation(FLatentResponse& Response)
 	Response.FinishAndTriggerIf(Result != ESaveGameResult::Saving, ExecutionFunction, OutputLink, CallbackTarget);
 }
 
-void FSaveGameAction::OnSaveFinished(USlotInfo* SavedSlot)
+void FSaveGameAction::OnSaveFinished(bool bSuccess,USlotInfo* SavedSlot)
 {
 	Result = SavedSlot ? ESaveGameResult::Continue : ESaveGameResult::Failed;
 }

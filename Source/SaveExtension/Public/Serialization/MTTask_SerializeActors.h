@@ -3,11 +3,8 @@
 #pragma once
 
 #include "MTTask_SerializeActors.h"
-
+#include "Delegates.h"
 #include <GameFramework/Actor.h>
-#include <Engine/LevelScriptActor.h>
-#include <GameFramework/Controller.h>
-#include <Async/AsyncWork.h>
 
 #include "SavePreset.h"
 
@@ -17,12 +14,6 @@
 
 
 class USlotData;
-
-/** Called when game has been saved
- * @param SlotInfo the saved slot. Null if save failed
- */
-DECLARE_DELEGATE_OneParam(FOnGameSaved, USlotInfo*);
-
 
 /////////////////////////////////////////////////////
 // FMTTask_SerializeActors

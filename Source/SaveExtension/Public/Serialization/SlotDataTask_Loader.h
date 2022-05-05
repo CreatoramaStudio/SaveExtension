@@ -41,7 +41,7 @@ class USlotDataTask_Loader : public USlotDataTask
 	UPROPERTY()
 	USlotInfo* NewSlotInfo;
 
-	FOnGameLoaded Delegate;
+	FOnGamePostLoad Delegate;
 
 protected:
 
@@ -69,7 +69,7 @@ public:
 		return this;
 	}
 
-	auto Bind(const FOnGameLoaded& OnLoaded) { Delegate = OnLoaded; return this; }
+	auto Bind(const FOnGamePostLoad& OnLoaded) { Delegate = OnLoaded; return this; }
 
 	void OnMapLoaded();
 

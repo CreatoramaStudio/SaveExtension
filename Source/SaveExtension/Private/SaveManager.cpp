@@ -56,7 +56,7 @@ void USaveManager::Deinitialize()
 	FGameDelegates::Get().GetEndPlayMapDelegate().RemoveAll(this);
 }
 
-bool USaveManager::SaveSlot(FName SlotName, bool bOverrideIfNeeded, bool bScreenshot, const FScreenshotSize Size, FOnGameSaved OnSaved)
+bool USaveManager::SaveSlot(FName SlotName, bool bOverrideIfNeeded, bool bScreenshot, const FScreenshotSize Size, FOnGamePostSave OnSaved)
 {
 	if (!CanLoadOrSave())
 		return false;
@@ -88,7 +88,7 @@ bool USaveManager::SaveSlot(FName SlotName, bool bOverrideIfNeeded, bool bScreen
 	return Task->IsSucceeded() || Task->IsScheduled();
 }
 
-bool USaveManager::LoadSlot(FName SlotName, FOnGameLoaded OnLoaded)
+bool USaveManager::LoadSlot(FName SlotName, FOnGamePostLoad OnLoaded)
 {
 	if (!CanLoadOrSave() || !IsSlotSaved(SlotName))
 	{

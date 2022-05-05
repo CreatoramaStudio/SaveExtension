@@ -120,7 +120,7 @@ void USlotDataTask_Loader::OnFinish(bool bSuccess)
 	}
 
 	// Execute delegates
-	Delegate.ExecuteIfBound((bSuccess) ? NewSlotInfo : nullptr);
+	Delegate.ExecuteIfBound(bSuccess, NewSlotInfo);
 
 	GetManager()->OnLoadFinished(
 		SlotData? GetGeneralFilter() : FSELevelFilter{},

@@ -36,7 +36,7 @@ public:
 
 	virtual void UpdateOperation(FLatentResponse& Response) override;
 
-	void OnLoadFinished(USlotInfo* SavedSlot);
+	void OnLoadFinished(bool bSuccess, USlotInfo* SavedSlot);
 
 #if WITH_EDITOR
 	// Returns a human readable description of the latent operation's current state
