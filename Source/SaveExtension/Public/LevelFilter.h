@@ -39,6 +39,12 @@ public:
 	UPROPERTY(SaveGame)
 	FSEComponentClassFilter LoadComponentFilter;
 
+	UPROPERTY(SaveGame)
+	FSESubsystemClassFilter SubsystemFilter;
+
+	UPROPERTY(SaveGame)
+	FSESubsystemClassFilter LoadSubsystemFilter;
+
 
 	FSELevelFilter() {}
 
@@ -49,6 +55,8 @@ public:
 		bStoreComponents = Preset.bStoreComponents;
 		ComponentFilter = Preset.GetComponentFilter(true);
 		LoadComponentFilter = Preset.GetComponentFilter(false);
+		SubsystemFilter = Preset.GetSubsystemFilter(true);
+		LoadSubsystemFilter = Preset.GetSubsystemFilter(false);
 	}
 
 	void BakeAllowedClasses() const
@@ -56,8 +64,10 @@ public:
 		TRACE_CPUPROFILER_EVENT_SCOPE(FSELevelFilter::BakeAllowedClasses);
 		ActorFilter.BakeAllowedClasses();
 		ComponentFilter.BakeAllowedClasses();
+		SubsystemFilter.BakeAllowedClasses();
 		LoadActorFilter.BakeAllowedClasses();
 		LoadComponentFilter.BakeAllowedClasses();
+		LoadSubsystemFilter.BakeAllowedClasses();
 	}
 
 	bool ShouldSave(const AActor* Actor) const
@@ -72,14 +82,22 @@ public:
 
 	bool ShouldSave(const UActorComponent* Component) const
 	{
-		return IsValid(Component)
-			&& ComponentFilter.IsClassAllowed(Component->GetClass());
+		return IsValid(Component) && ComponentFilter.IsClassAllowed(Component->GetClass());
 	}
 
 	bool ShouldLoad(const UActorComponent* Component) const
 	{
-		return IsValid(Component)
-			&& LoadComponentFilter.IsClassAllowed(Component->GetClass());
+		return IsValid(Component) && LoadComponentFilter.IsClassAllowed(Component->GetClass());
+	}
+
+	bool ShouldSave(const USubsystem* Subsystem) const
+	{
+		return IsValid(Subsystem) && SubsystemFilter.IsClassAllowed(Subsystem->GetClass());
+	}
+
+	bool ShouldLoad(const USubsystem* Subsystem) const
+	{
+		return IsValid(Subsystem) && LoadSubsystemFilter.IsClassAllowed(Subsystem->GetClass());
 	}
 
 	static bool StoresTransform(const UActorComponent* Component)

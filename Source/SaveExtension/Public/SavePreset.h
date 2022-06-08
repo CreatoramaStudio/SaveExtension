@@ -116,6 +116,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Serialization|Components", meta = (EditCondition = "bUseLoadComponentFilter"))
 	FSEComponentClassFilter LoadComponentFilter;
 
+	/** If true will store Subsystems depending on the filters */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Serialization|Subsystems")
+	bool bStoreSubsystems = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Serialization|Subsystems")
+	FSESubsystemClassFilter SubsystemFilter;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Serialization|Subsystems",meta = (PinHiddenByDefault, InlineEditConditionToggle))
+	bool bUseLoadSubsystemFilter = false;
+
+	/** If enabled, this filter will be used while loading instead of "SubsystemFilter" */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Serialization|Subsystems",meta = (EditCondition = "bUseLoadSubsystemFilter"))
+	FSESubsystemClassFilter LoadSubsystemFilter;
+
 public:
 
 	/** Serialization will be multi-threaded between all available cores. */
@@ -189,7 +203,19 @@ public:
 
 	const FSEComponentClassFilter& GetComponentFilter(bool bIsLoading) const
 	{
-		return (bIsLoading && bUseLoadActorFilter) ? LoadComponentFilter : ComponentFilter;
+		return (bIsLoading && bUseLoadComponentFilter) ? LoadComponentFilter : ComponentFilter;
+	}
+
+	//
+	UFUNCTION(BlueprintPure, Category = SavePreset)
+	FSESubsystemClassFilter& GetSubsystemFilter(bool bIsLoading)
+	{
+		return (bIsLoading && bUseLoadSubsystemFilter) ? LoadSubsystemFilter : SubsystemFilter;
+	}
+
+	const FSESubsystemClassFilter& GetSubsystemFilter(bool bIsLoading) const
+	{
+		return (bIsLoading && bUseLoadSubsystemFilter) ? LoadSubsystemFilter : SubsystemFilter;
 	}
 
 	bool IsMTSerializationLoad() const

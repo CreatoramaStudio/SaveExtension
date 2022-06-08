@@ -228,6 +228,11 @@ void USlotDataTask_Loader::BeforeDeserialize()
 	{
 		DeserializeGameInstance();
 	}
+
+	if (SlotData->bStoreSubsystems)
+	{
+		DeserializeSubsystems();
+	}
 }
 
 void USlotDataTask_Loader::DeserializeSync()
@@ -490,8 +495,10 @@ void USlotDataTask_Loader::DeserializeGameInstance()
 	auto* GameInstance = GetWorld()->GetGameInstance();
 	const FObjectRecord& Record = SlotData->GameInstance;
 
-	if (!IsValid(GameInstance) || GameInstance->GetClass() != Record.Class)
+	if (!IsValid(GameInstance) || GameInstance->GetClass()->StaticClass() != Record.Class->StaticClass())
+	{
 		bSuccess = false;
+	}	
 
 	if (bSuccess)
 	{
@@ -502,6 +509,41 @@ void USlotDataTask_Loader::DeserializeGameInstance()
 	}
 
 	SELog(Preset, "Game Instance '" + Record.Name.ToString() + "'", FColor::Green, !bSuccess, 1);
+}
+
+void USlotDataTask_Loader::DeserializeSubsystems() 
+{
+	bool bSuccess = true;
+
+	TArray<USubsystem*> Subsystems;
+	if (GetWorld())
+	{
+		Subsystems.Append(GetWorld()->GetSubsystemArray<UWorldSubsystem>());
+		if (GetWorld()->GetGameInstance())
+		{
+			Subsystems.Append(GetWorld()->GetGameInstance()->GetSubsystemArray<UGameInstanceSubsystem>());
+		}
+	}
+
+	for (FObjectRecord& Record : SlotData->Subsystems)
+	{
+		for (USubsystem* Subsystem : Subsystems)
+		{
+			if (!IsValid(Subsystem) || Subsystem->GetClass()->StaticClass() != Record.Class->StaticClass())
+			{
+				bSuccess = false;
+			}
+
+			if (bSuccess)
+			{
+				// Serialize from Record Data
+				FMemoryReader MemoryReader(Record.Data, true);
+				FSEArchive Archive(MemoryReader, false);
+				Subsystem->Serialize(Archive);
+			}
+		}
+		SELog(Preset, "Subsystem '" + Record.Name.ToString() + "'", FColor::Green, !bSuccess, 1);
+	}
 }
 
 bool USlotDataTask_Loader::DeserializeActor(AActor* Actor, const FActorRecord& Record, const FSELevelFilter& Filter)
@@ -535,12 +577,11 @@ bool USlotDataTask_Loader::DeserializeActor(AActor* Actor, const FActorRecord& R
 
 	DeserializeActorComponents(Actor, Record, Filter, 2);
 
-	{
-		//Serialize from Record Data
-		FMemoryReader MemoryReader(Record.Data, true);
-		FSEArchive Archive(MemoryReader, false);
-		Actor->Serialize(Archive);
-	}
+
+	// Serialize from Record Data
+	FMemoryReader MemoryReader(Record.Data, true);
+	FSEArchive Archive(MemoryReader, false);
+	Actor->Serialize(Archive);
 
 	return true;
 }
@@ -563,7 +604,8 @@ void USlotDataTask_Loader::DeserializeActorComponents(AActor* Actor, const FActo
 			const FComponentRecord* Record = ActorRecord.ComponentRecords.FindByKey(Component);
 			if (!Record)
 			{
-				SELog(Preset, "Component '" + Component->GetFName().ToString() + "' - Record not found", FColor::Red, false, Indent + 1);
+				SELog(Preset, "Component '" + Component->GetFName().ToString() + "' - Record not found",
+					FColor::Red, false, Indent + 1);
 				continue;
 			}
 
@@ -581,12 +623,9 @@ void USlotDataTask_Loader::DeserializeActorComponents(AActor* Actor, const FActo
 				Component->ComponentTags = Record->Tags;
 			}
 
-			if (!Component->GetClass()->IsChildOf<UPrimitiveComponent>())
-			{
-				FMemoryReader MemoryReader(Record->Data, true);
-				FSEArchive Archive(MemoryReader, false);
-				Component->Serialize(Archive);
-			}
+			FMemoryReader MemoryReader(Record->Data, true);
+			FSEArchive Archive(MemoryReader, false);
+			Component->Serialize(Archive);
 		}
 	}
 }

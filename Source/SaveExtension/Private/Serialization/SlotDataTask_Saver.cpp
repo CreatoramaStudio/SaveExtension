@@ -97,6 +97,7 @@ void USlotDataTask_Saver::OnStart()
 		SlotData->Map = SlotData->Map;
 
 		SlotData->bStoreGameInstance = Preset->bStoreGameInstance;
+		SlotData->bStoreSubsystems = Preset->bStoreSubsystems;
 		SlotData->GeneralLevelFilter = Preset->ToFilter();
 
 		SerializeWorld();
@@ -243,11 +244,11 @@ void USlotDataTask_Saver::SerializeLevelSync(const ULevel* Level, int32 Assigned
 
 		// First task saves the GameInstance
 		bool bStoreGameInstance = Index <= 0 && SlotData->bStoreGameInstance;
+		bool bStoreSubsystems = Index <= 0 && SlotData->bStoreSubsystems;
 		// Add new Task
 		Tasks.Emplace(FMTTask_SerializeActors
 		{
-			GetWorld(), SlotData, &Level->Actors, Index, NumToSerialize,
-			bStoreGameInstance, LevelRecord, Filter
+			GetWorld(), SlotData, &Level->Actors, Index, NumToSerialize,bStoreGameInstance,bStoreSubsystems, LevelRecord, Filter
 		});
 
 		Index += NumToSerialize;

@@ -122,6 +122,8 @@ private:
 	Requires 'SaveGameMode' flag to be used. */
 	void DeserializeGameInstance();
 
+	void DeserializeSubsystems();
+
 	/** Serializes an actor into this Actor Record */
 	bool DeserializeActor(AActor* Actor, const FActorRecord& Record, const FSELevelFilter& Filter);
 

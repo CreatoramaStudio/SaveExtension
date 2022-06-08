@@ -47,6 +47,9 @@ public:
 	bool bStoreGameInstance = false;
 	FObjectRecord GameInstance;
 
+	bool bStoreSubsystems = false;
+	TArray<FObjectRecord> Subsystems;
+
 	FSELevelFilter GeneralLevelFilter;
 	FPersistentLevelRecord MainLevel;
 	TArray<FStreamingLevelRecord> SubLevels;

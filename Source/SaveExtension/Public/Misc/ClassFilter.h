@@ -73,7 +73,7 @@ struct FSEActorClassFilter
 	FSEActorClassFilter()
 		: ClassFilter(AActor::StaticClass())
 	{}
-	FSEActorClassFilter(TSubclassOf<AActor> actorClass) : ClassFilter(actorClass) {}
+	FSEActorClassFilter(TSubclassOf<AActor> ActorClass) : ClassFilter(ActorClass) {}
 
 	/** Bakes a set of allowed classes based on the current settings */
 	void BakeAllowedClasses() const { ClassFilter.BakeAllowedClasses(); }
@@ -97,10 +97,34 @@ struct FSEComponentClassFilter
 	FSEComponentClassFilter()
 		: ClassFilter(UActorComponent::StaticClass())
 	{}
-	FSEComponentClassFilter(TSubclassOf<UActorComponent> compClass) : ClassFilter(compClass) {}
+	FSEComponentClassFilter(TSubclassOf<UActorComponent> ComponentClass) : ClassFilter(ComponentClass) {}
 
 	/** Bakes a set of allowed classes based on the current settings */
 	void BakeAllowedClasses() const { ClassFilter.BakeAllowedClasses(); }
+
+	FORCEINLINE bool IsClassAllowed(UClass* const Class) const
+	{
+		return ClassFilter.IsClassAllowed(Class);
+	}
+};
+
+USTRUCT(BlueprintType)
+struct FSESubsystemClassFilter
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Filter)
+	FSEClassFilter ClassFilter;
+
+
+	FSESubsystemClassFilter() : ClassFilter(USubsystem::StaticClass()) {}
+	FSESubsystemClassFilter(TSubclassOf<USubsystem> SubsystemClass) : ClassFilter(SubsystemClass) {}
+
+	/** Bakes a set of allowed classes based on the current settings */
+	void BakeAllowedClasses() const
+	{
+		ClassFilter.BakeAllowedClasses();
+	}
 
 	FORCEINLINE bool IsClassAllowed(UClass* const Class) const
 	{

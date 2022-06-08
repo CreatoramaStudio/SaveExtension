@@ -21,6 +21,11 @@ void FMTTask_SerializeActors::DoWork()
 		SerializeGameInstance();
 	}
 
+	if (bStoreSubsystems) 
+	{
+		SerializeSubsystems();
+	}
+
 	for (int32 I = 0; I < Num; ++I)
 	{
 		const AActor* const Actor = (*LevelActors)[StartIndex + I];
@@ -45,6 +50,36 @@ void FMTTask_SerializeActors::SerializeGameInstance()
 		GameInstance->Serialize(Archive);
 
 		SlotData->GameInstance = MoveTemp(Record);
+	}
+}
+
+void FMTTask_SerializeActors::SerializeSubsystems() 
+{
+	TRACE_CPUPROFILER_EVENT_SCOPE(FMTTask_SerializeActors::SerializeSubsystems);
+
+	TArray<USubsystem*> Subsystems;
+	if (World)
+	{
+		Subsystems.Append(World->GetSubsystemArray<UWorldSubsystem>());
+		if (World->GetGameInstance())
+		{
+			Subsystems.Append(World->GetGameInstance()->GetSubsystemArray<UGameInstanceSubsystem>());
+		}
+	}
+	
+	for (USubsystem* Subsystem : Subsystems)
+	{
+		if (Subsystem && Filter.ShouldSave(Subsystem))
+		{
+			FObjectRecord& Record = SlotData->Subsystems.AddDefaulted_GetRef();
+
+			Record = {Subsystem};
+
+			// Serialize into Record Data
+			FMemoryWriter MemoryWriter(Record.Data, true);
+			FSEArchive Archive(MemoryWriter, false);
+			Subsystem->Serialize(Archive);
+		}
 	}
 }
 
@@ -137,12 +172,10 @@ void FMTTask_SerializeActors::SerializeActorComponents(const AActor* Actor, FAct
 				ComponentRecord.Tags = Component->ComponentTags;
 			}
 
-			if (!Component->GetClass()->IsChildOf<UPrimitiveComponent>())
-			{
-				FMemoryWriter MemoryWriter(ComponentRecord.Data, true);
-				FSEArchive Archive(MemoryWriter, false);
-				Component->Serialize(Archive);
-			}
+			FMemoryWriter MemoryWriter(ComponentRecord.Data, true);
+			FSEArchive Archive(MemoryWriter, false);
+			Component->Serialize(Archive);
+
 			ActorRecord.ComponentRecords.Add(ComponentRecord);
 		}
 	}
