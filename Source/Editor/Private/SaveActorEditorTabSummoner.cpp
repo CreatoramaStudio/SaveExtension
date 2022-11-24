@@ -126,7 +126,7 @@ TSharedPtr<SWidget> SSaveActorEditorWidget::GenerateSettingsWidget()
 	if (Actor)
 	{
 		return SNew(SBorder)
-		.BorderImage(FEditorStyle::GetBrush("DetailsView.CategoryMiddle"))
+		.BorderImage(FAppStyle::GetBrush("DetailsView.CategoryMiddle"))
 		.Padding(0)
 		[
 			SNew(SVerticalBox)
@@ -145,7 +145,7 @@ TSharedPtr<SWidget> SSaveActorEditorWidget::GenerateSettingsWidget()
 			.Padding(6)
 			[
 				SNew(SBorder)
-				.BorderImage(FEditorStyle::GetBrush("DetailsView.CategoryMiddle"))
+				.BorderImage(FAppStyle::GetBrush("DetailsView.CategoryMiddle"))
 				.Padding(0)
 				[
 					SettingItems[2]

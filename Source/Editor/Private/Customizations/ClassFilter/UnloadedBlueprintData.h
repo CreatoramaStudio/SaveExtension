@@ -35,6 +35,8 @@ public:
 
 	virtual FName GetClassPath() const override;
 
+	virtual FTopLevelAssetPath GetClassPathName() const override;
+
 	virtual const UClass* GetClassWithin() const override;
 
 	virtual const UClass* GetNativeParent() const override;

@@ -556,7 +556,7 @@ bool USlotDataTask_Loader::DeserializeActor(AActor* Actor, const FActorRecord& R
 	const bool bSavesPhysics = FSELevelFilter::StoresPhysics(Actor);
 	if (FSELevelFilter::StoresTransform(Actor))
 	{
-		Actor->SetActorTransform(Record.Transform);
+		Actor->SetActorTransform(Record.Transform, false, nullptr, ETeleportType::TeleportPhysics);
 
 		if (FSELevelFilter::StoresPhysics(Actor))
 		{
@@ -614,7 +614,7 @@ void USlotDataTask_Loader::DeserializeActorComponents(AActor* Actor, const FActo
 				USceneComponent* Scene = CastChecked<USceneComponent>(Component);
 				if (Scene->Mobility == EComponentMobility::Movable)
 				{
-					Scene->SetRelativeTransform(Record->Transform);
+					Scene->SetRelativeTransform(Record->Transform,false,nullptr,ETeleportType::TeleportPhysics);
 				}
 			}
 

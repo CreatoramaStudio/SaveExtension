@@ -24,7 +24,7 @@
 #include "GameplayTagsSettings.h"
 #include "Layout/WidgetPath.h"
 #include "Framework/Application/SlateApplication.h"
-#include "AssetData.h"
+#include "AssetRegistry/AssetData.h"
 #include "Editor.h"
 #include "Framework/Commands/UIAction.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
@@ -77,7 +77,7 @@ void SClassFilter::Construct(const FArguments& InArgs, const TArray<FEditableCla
 	ChildSlot
 	[
 		SNew(SBorder)
-		.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+		.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 		[
 			SNew(SVerticalBox)
 
@@ -234,10 +234,10 @@ bool SClassFilter::FilterChildrenCheck(const FSEClassFilterNodePtr& Class)
 TSharedRef<ITableRow> SClassFilter::OnGenerateRow(FSEClassFilterNodePtr Class, const TSharedRef<STableViewBase>& OwnerTable)
 {
 	return SNew(STableRow<FSEClassFilterNodePtr>, OwnerTable)
-	.Style(FEditorStyle::Get(), "GameplayTagTreeView")
+	.Style(FAppStyle::Get(), "GameplayTagTreeView")
 	[
 		SNew(SBorder)
-		.BorderImage(FEditorStyle::GetBrush("ToolPanel.GroupBorder"))
+		.BorderImage(FAppStyle::GetBrush("ToolPanel.GroupBorder"))
 		.BorderBackgroundColor(this, &SClassFilter::GetClassBackgroundColor, Class)
 		.Padding(0)
 		.Content()
@@ -248,14 +248,14 @@ TSharedRef<ITableRow> SClassFilter::OnGenerateRow(FSEClassFilterNodePtr Class, c
 			.HAlign(HAlign_Left)
 			[
 				SNew(SButton)
-				.ButtonStyle(FEditorStyle::Get(), "FlatButton")
+				.ButtonStyle(FAppStyle::Get(), "FlatButton")
 				.OnClicked(this, &SClassFilter::OnClassClicked, Class)
 				.ForegroundColor(this, &SClassFilter::GetClassIconColor, Class)
 				.ContentPadding(0)
 				.IsEnabled(this, &SClassFilter::CanSelectClasses)
 				[
 					SNew(STextBlock)
-					.Font(FEditorStyle::Get().GetFontStyle("FontAwesome.8"))
+					.Font(FAppStyle::Get().GetFontStyle("FontAwesome.8"))
 					.Text(this, &SClassFilter::GetClassIconText, Class)
 				]
 			]

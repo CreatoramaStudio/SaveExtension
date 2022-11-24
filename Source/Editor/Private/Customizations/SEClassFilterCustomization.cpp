@@ -39,7 +39,7 @@ void FSEClassFilterCustomization::CustomizeHeader(TSharedRef<class IPropertyHand
 		.MaxWidth(200.f)
 		[
 			SAssignNew(EditButton, SComboButton)
-			.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+			.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 			.OnGetMenuContent(this, &FSEClassFilterCustomization::GetListContent)
 			.OnMenuOpenChanged(this, &FSEClassFilterCustomization::OnPopupStateChanged)
 			.ContentPadding(FMargin(2.0f, 2.0f))
@@ -60,7 +60,7 @@ void FSEClassFilterCustomization::CustomizeHeader(TSharedRef<class IPropertyHand
 		.VAlign(VAlign_Fill)
 		[
 			SNew(SButton)
-			.ButtonStyle(FEditorStyle::Get(), "HoverHintOnly")
+			.ButtonStyle(FAppStyle::Get(), "HoverHintOnly")
 			.ContentPadding(FMargin(2.0f, 2.0f))
 			.OnClicked(this, &FSEClassFilterCustomization::OnClearClicked)
 			.ForegroundColor(FSlateColor::UseForeground())
@@ -71,7 +71,7 @@ void FSEClassFilterCustomization::CustomizeHeader(TSharedRef<class IPropertyHand
 				[
 					SNew(SImage)
 					// .Image(FEditorStyle::GetBrush("PropertyWindow.Button_EmptyArray"))
-					.Image(FEditorStyle::GetBrush("PropertyWindow.Button_Clear"))
+					.Image(FAppStyle::GetBrush("PropertyWindow.Button_Clear"))
 					.ColorAndOpacity(FSlateColor::UseForeground())
 				]
 			]
@@ -206,7 +206,7 @@ TSharedRef<ITableRow> FSEClassFilterCustomization::OnGeneratePreviewRow(TSharedP
 		[
 			SNew(STextBlock)
 			.ColorAndOpacity(StateColor)
-			.Font(FEditorStyle::Get().GetFontStyle("FontAwesome.8"))
+			.Font(FAppStyle::Get().GetFontStyle("FontAwesome.8"))
 			.Text(StateText)
 		]
 		+ SHorizontalBox::Slot()
